@@ -1,0 +1,699 @@
+# ✅ 1) Ubuntu EC2 – Connect using .pem (SSH from Local)
+
+### 🔹 Create Instance
+
+1. Login → AWS Academy Learner Lab → Start Lab
+2. Click AWS → Search EC2
+3. Click Launch Instance
+4. Enter Name
+5. In AMI → Select Ubuntu
+6. In Key pair → Click Create new key pair
+7. Select .pem format
+8. Click Create key pair (file downloads)
+9. Click Launch Instance
+
+---
+
+### 🔹 Connect using SSH
+
+10. Select instance → Click Connect
+
+11. Go to SSH Client tab
+
+12. Copy ssh -i command
+
+13. Open PowerShell / Git Bash
+
+14. Go to key folder:
+
+```
+cd path_of_key
+```
+
+15. Paste ssh -i command → Enter
+
+16. Verify:
+
+```
+whoami
+```
+
+Output: ubuntu
+
+17. Exit:
+
+```
+exit
+```
+
+---
+
+# ✅ 2) Ubuntu EC2 – Connect using PuTTY (.ppk directly)
+
+### 🔹 Create Instance
+
+1. Launch Instance
+2. Select Ubuntu
+3. Create key pair → Select .ppk format
+4. Launch Instance
+
+---
+
+### 🔹 Configure Security Group
+
+1. EC2 → Instances → Select instance
+2. Click Security
+3. Click Security Group
+4. Edit inbound rules
+5. Ensure SSH – Port 22 – Source My IP
+6. Save
+
+---
+
+### 🔹 Connect using PuTTY
+
+1. Open PuTTY
+2. Paste Public IPv4 in Host Name
+3. Go to Connection → SSH → Auth → Credentials
+4. Browse → Select .ppk file
+5. Click Open
+6. Accept
+
+Login as:
+
+```
+ubuntu
+```
+
+Verify:
+
+```
+whoami
+```
+
+---
+
+# ✅ 3) Convert .pem to .ppk (if needed)
+
+1. Open PuTTYgen
+2. Click Load
+3. Select .pem file (All Files)
+4. Click Save private key
+5. Save as .ppk
+
+---
+
+# ✅ 4) Connect using AWS CloudShell
+
+1. Create EC2 with .pem
+
+2. Open AWS Console
+
+3. Click CloudShell icon
+
+4. EC2 → Instances → Select instance → Connect
+
+5. Copy ssh -i command
+
+6. Paste in CloudShell → It fails
+
+7. Click Upload file in CloudShell
+
+8. Upload .pem file
+
+9. Paste ssh -i command again
+
+10. Press Enter
+
+Connected.
+
+---
+
+# ✅ 5) Create Windows EC2 & Connect via RDP
+
+### 🔹 Launch Instance
+
+1. EC2 → Launch Instance
+2. Select Windows Server AMI
+3. Choose instance type
+4. Security group → Allow RDP (Port 3389) → Source My IP
+5. Create/Select key pair (.pem)
+6. Launch
+
+---
+
+### 🔹 Get Password
+
+7. Select instance → Connect
+8. Go to RDP Client tab
+9. Click Get Password
+10. Upload .pem
+11. Click Decrypt Password
+12. Copy password
+
+---
+
+### 🔹 Connect via Remote Desktop
+
+13. Open rdp
+14. Enter Public IP
+15. Username: Administrator
+16. Paste password
+17. Connect
+
+---
+# ✅ 1a) Create and Attach EBS Volume to EC2
+
+### 🔹 Create EBS Volume
+
+1. Login → AWS Console
+2. Search **EC2**
+3. Left panel → Click **Volumes**
+4. Click **Create Volume**
+5. Select:
+
+   * Volume type (General Purpose SSD – gp2/gp3)
+   * Size (e.g., 8 GiB)
+   * Availability Zone → **Same as EC2 instance**
+6. Click **Create Volume**
+
+---
+
+### 🔹 Attach Volume
+
+7. Select created volume
+8. Click **Actions → Attach Volume**
+9. Select EC2 Instance
+10. Device name → keep default (/dev/sdf)
+11. Click **Attach**
+
+---
+
+# ✅ Mount EBS Volume in Linux EC2
+
+12. Connect to EC2 via SSH
+13. Check disks:
+
+```
+lsblk
+```
+
+14. Format volume:
+
+```
+sudo mkfs -t ext4 /dev/xvdf
+```
+
+15. Create directory:
+
+```
+sudo mkdir /data
+```
+
+16. Mount volume:
+
+```
+sudo mount /dev/xvdf /data
+```
+
+17. Verify:
+
+```
+df -h
+```
+
+---
+
+# ✅ Make Mount Permanent (Data persists after reboot)
+
+18. Get UUID:
+
+sudo blkid
+sudo nano /etc/fstab
+UUID=your-uuid /data ext4 defaults,nofail 0 2
+```
+21. Save & exit
+22. Test:
+
+sudo mount -a
+---
+
+# ✅ 1b) Increase / Decrease CPU & RAM
+
+⚠ You cannot directly change CPU/RAM.
+You must change **Instance Type**.
+
+### 🔹 Steps
+
+1. EC2 → Instances
+2. Select instance
+3. Click **Instance State → Stop**
+4. Wait until stopped
+5. Click **Actions → Instance Settings → Change Instance Type**
+6. Select new type (e.g., t2.micro → t2.medium)
+7. Click **Apply**
+8. Click **Instance State → Start**
+
+CPU & RAM updated.
+
+---
+
+# ✅ 2) Attach & Permanently Mount EBS (Full Flow)
+
+1. Create Volume (same AZ)
+2. Attach to EC2
+3. SSH into instance
+4. Run:
+
+```
+lsblk
+sudo mkfs -t ext4 /dev/xvdf
+sudo mkdir /data
+sudo mount /dev/xvdf /data
+```
+
+5. sudo nano /etc/fstab
+add like this---UUID=3e6be9de-8139-4c6a-b8a4-5d3c9f2a1234  /data  ext4  defaults,nofail  0  2
+
+---
+
+# ✅ 3) Create Snapshot & Use in Another Region
+
+### 🔹 Create Snapshot
+
+1. EC2 → Volumes
+2. Select volume
+3. Click **Actions → Create Snapshot**
+4. Add name
+5. Click **Create Snapshot**
+
+---
+
+### 🔹 Copy Snapshot to Another Region
+
+6. Go to **Snapshots**
+7. Select snapshot
+8. Click **Actions → Copy Snapshot**
+9. Choose Destination Region
+10. Click **Copy**
+
+---
+
+### 🔹 Create Volume from Snapshot (in new region)
+
+11. Switch to destination region (top right corner)
+12. Go to EC2 → Snapshots
+13. Select copied snapshot
+14. Click **Actions → Create Volume**
+15. Select Availability Zone
+16. Click **Create Volume**
+
+---
+
+### 🔹 Attach to EC2 in New Region
+
+17. Select new volume
+18. Click **Actions → Attach Volume**
+19. Choose instance
+20. SSH & mount (same steps as before)
+---
+
+# ✅ PART 1: Create EC2 Instance
+
+### Step 1: Launch Instance
+
+1. Go to EC2 → Click **Launch Instance**
+2. Choose **AMI**
+
+   * Select Amazon Linux / Ubuntu (as required)
+3. Choose **Instance Type**
+
+   * Example: t2.micro
+
+---
+
+### Step 2: Configure Network
+
+4. Select **VPC**
+5. Select **Subnet** (Public or Private as needed)
+6. Enable Auto-assign Public IP (if public access required)
+
+---
+
+### Step 3: Create / Configure Security Group
+
+7. Create new Security Group
+8. Add **Inbound Rules**:
+
+| Type | Port | Source                     |
+| ---- | ---- | -------------------------- |
+| SSH  | 22   | My IP                      |
+| NFS  | 2049 | EFS Security Group (later) |
+
+(For mounting EFS, port 2049 must be open.)
+
+9. Outbound: Allow All (default)
+
+---
+
+### Step 4: Create Key Pair
+
+10. Select existing key pair OR create new key pair
+11. Download `.pem` file
+
+---
+
+### Step 5: Launch Instance
+
+12. Click **Launch**
+13. Connect using SSH:
+
+```
+ssh -i key.pem ec2-user@public-ip
+```
+
+---
+
+# ✅ PART 2: Create EFS
+
+### Step 1: Create File System
+
+1. Go to EFS → Create File System
+2. Select same **VPC** as EC2
+3. Choose default settings (or customize)
+
+
+4. Ensure **Mount Target is created in each AZ**
+5. Select subnet for each AZ
+
+6. Attach Security Group to EFS
+7. Add Inbound Rule:
+
+| Type | Port | Source             |
+| ---- | ---- | ------------------ |
+| NFS  | 2049 | EC2 Security Group |
+
+
+sudo su
+sudo yum install -y amazon-efs-utils
+sudo mkdir /mnt/efs
+
+sudo mount -t efs -o tls fs-id:/efs
+df -h
+
+same in another instance 
+---
+
+# ✅ A) Create S3 Bucket + Upload Object + Make Public
+
+1. Go to AWS Console → Services → S3
+2. Click **Create Bucket**
+3. Enter Bucket Name: `sars-bucket-2026`
+4. Select Region: `Asia Pacific (Mumbai)`
+5. Under Block Public Access → Uncheck **Block all public access**
+6. Confirm warning checkbox
+7. Click **Create Bucket**
+8. Open bucket `sars-bucket-2026`
+9. Click **Upload** → Add file `index.html` → Click Upload
+10. Select uploaded file → Go to **Permissions**
+11. Click **Edit ACL**
+12. Enable **Public Read** → Save changes
+
+# ✅ B) Enable Versioning + Restore Object
+
+1. Open bucket `sars-bucket-2026`
+2. Go to **Properties** tab
+3. Scroll to Versioning → Click **Edit**
+4. Select **Enable** → Save
+5. Upload new version of `index.html`
+6. Delete `index.html`
+7. Go to `index.html` → Click **Versions** tab
+8. Select previous version
+9. Click **Download** or **Restore**
+
+---
+
+# ✅ C) Cross-Region Replication (CRR)
+
+1. Create bucket `sars-source-2026` in N.Virgina
+2. Enable Versioning on `sars-source-2026`
+3. Create bucket `sars-dest-2026` in Oregon
+4. Enable Versioning on `sars-dest-2026`
+5. Open `sars-source-2026` in N.Virgina
+6. Go to **Management** tab
+7. Click **Replication Rules**
+8. Click **Create Rule**
+9. Enter Rule Name: `crr-rule`
+10. Choose Destination Bucket: `sars-dest-2026`
+11. Create new IAM Role -Labrole
+12. Save Rule
+
+# ✅ D) Static Website Hosting
+
+1. Create bucket `sars-website-2026`
+2. Uncheck Block Public Access
+3. Upload `index.html`
+4. Upload `error.html`
+5. Make both files Public Read (ACL)
+6. Go to **Properties**
+7. Click **Static Website Hosting**
+8. Select **Enable**
+9. Enter Index Document: `index.html`
+10. Enter Error Document: `error.html`
+11. Copy Website Endpoint URL and open in browser
+---
+# ✅ A) Create VPC for 3-Tier Architecture (Web–App–DB)
+
+1. Go to VPC → Create VPC
+2. Enter Name: `sars-vpc`
+3. Enter CIDR Block: `10.0.0.0/16`
+4. Click Create
+
+---
+
+### Create Subnets
+
+5. Create Subnet → Name: `sars-public-1` → CIDR: `10.0.1.0/24` → AZ: ap-south-1a
+6. Create Subnet → Name: `sars-app-1` → CIDR: `10.0.2.0/24` → AZ: ap-south-1a
+7. Create Subnet → Name: `sars-db-1` → CIDR: `10.0.3.0/24` → AZ: ap-south-1a
+
+---
+
+### Create Internet Gateway
+
+8. Create Internet Gateway → Name: `sars-igw`
+9. Attach `sars-igw` to `sars-vpc`
+
+---
+
+### Configure Public Route Table
+
+10. Create Route Table → Name: `sars-public-rt`
+11. Add Route: Destination `0.0.0.0/0` → Target `sars-igw`
+12. Associate `sars-public-1` subnet to this route table
+
+---
+
+### Create NAT Gateway (For Private Subnets)
+
+13. Allocate Elastic IP
+14. Create NAT Gateway in `sars-public-1` → Name: `sars-nat`
+15. Create Private Route Table → Add route `0.0.0.0/0` → Target `sars-nat` → Associate with `sars-app-1` and `sars-db-1`
+
+---
+
+# ✅ B) Launch EC2 in Public Subnet
+
+
+1. Go to EC2 → Launch Instance
+2. Name: `sars-web`
+3. Choose AMI (Amazon Linux)
+4. Choose Instance Type: t2.micro
+5. Select VPC: `sars-vpc`
+6. Select Subnet: `sars-public-1`
+7. Enable Auto-assign Public IP
+8. Create Security Group `sars-web-sg`
+9. Add Inbound Rule: HTTP (80) → Source: 0.0.0.0/0
+10. Add Inbound Rule: SSH (22) → Source: Your Company IP
+
+Launch instance.
+
+---
+
+# ✅ C) Create RDS in Private Subnet
+
+
+1. Go to RDS → Create Database
+2. Choose Standard Create
+3. Select Engine (MySQL)
+4. DB Instance Name: `sars-db`
+5. Choose VPC: `sars-vpc`
+6. Choose Subnet Group → Select `sars-db-1`
+7. Disable Public Access
+8. Create Security Group `sars-db-sg`
+9. Add Inbound Rule: MySQL (3306) → Source: `sars-app-sg`
+
+---
+
+# ✅ D) Secure SSH Only from Corporate IP
+
+1. Open Security Group `sars-web-sg`
+2. Edit Inbound Rules
+3. Add Rule: SSH (22)
+4. Source: `203.0.113.10/32` (Company IP)
+5. Remove 0.0.0.0/0 if exists
+6. Save
+---
+
+
+# ✅ A) Create VPC + Subnets (Public + Private)
+
+
+
+### Steps (8 Steps)
+
+1. Go to VPC → Create VPC
+
+2. Name: `sars-bastion-vpc`
+
+3. CIDR: `10.1.0.0/16`
+
+4. Click Create
+
+5. Create Subnet → Name: `sars-public-subnet` → CIDR: `10.1.1.0/24` → AZ: ap-south-1a
+
+6. Create Subnet → Name: `sars-private-subnet` → CIDR: `10.1.2.0/24` → AZ: ap-south-1a
+
+---
+
+# ✅ B) Create Internet Gateway
+
+### Example:
+
+* IGW Name: `sars-igw`
+
+---
+
+### Steps (4 Steps)
+
+1. Create Internet Gateway → Name: `sars-igw`
+2. Click Create
+3. Select `sars-igw`
+4. Attach to `sars-bastion-vpc`
+
+---
+
+# ✅ C) Route Table for Public Subnet
+
+### Example:
+
+* Route Table: `sars-public-rt`
+
+---
+
+### Steps (6 Steps)
+
+1. Create Route Table → Name: `sars-public-rt`
+2. Select VPC: `sars-bastion-vpc`
+3. Add Route
+4. Destination: `0.0.0.0/0`
+5. Target: `sars-igw`
+6. Associate with `sars-public-subnet`
+
+---
+
+# ✅ D) Create NAT Gateway (For Private Internet Access)
+
+### Example:
+
+* NAT Name: `sars-nat`
+
+---
+
+### Steps (7 Steps)
+
+1. Go to NAT Gateway → Create
+2. Name: `sars-nat`
+3. Subnet: `sars-public-subnet`
+4. Allocate Elastic IP
+5. Click Create
+6. Create Route Table → Name: `sars-private-rt`
+7. Add Route `0.0.0.0/0` → Target: `sars-nat` → Associate with `sars-private-subnet`
+
+---
+
+# ✅ E) Create Security Groups
+
+---
+
+## 1️⃣ Bastion Security Group
+
+### Name: `sars-bastion-sg`
+
+Steps (5 Steps)
+
+1. Create Security Group → Name: `sars-bastion-sg`
+2. VPC: `sars-bastion-vpc`
+3. Add Inbound Rule: SSH (22)
+4. Source: Your IP (example `203.0.113.10/32`)
+5. Save
+
+---
+
+## 2️⃣ Private/DB Security Group
+
+### Name: `sars-db-sg`
+
+Steps (5 Steps)
+
+1. Create Security Group → Name: `sars-db-sg`
+2. VPC: `sars-bastion-vpc`
+3. Add Inbound Rule: SSH (22)
+4. Source: `sars-bastion-sg`
+5. Save
+
+(Important: Allow SSH only from Bastion SG)
+
+---
+
+# ✅ F) Launch EC2 Instances
+
+---
+
+## 1️⃣ Bastion Server
+
+
+1. EC2 → Launch Instance
+2. Name: `sars-bastion-server`
+3. Choose AMI (Amazon Linux)
+4. Instance Type: t2.micro
+5. VPC: `sars-bastion-vpc`
+6. Subnet: `sars-public-subnet`
+7. Enable Auto-assign Public IP
+8. Security Group: `sars-bastion-sg`
+9. Launch with Key Pair
+
+---
+
+## 2️⃣ Private Database Server
+
+
+1. EC2 → Launch Instance
+2. Name: `sars-private-server`
+3. Choose AMI
+4. Instance Type: t2.micro
+5. VPC: `sars-bastion-vpc`
+6. Subnet: `sars-private-subnet`
+7. Disable Public IP
+8. Security Group: `sars-db-sg`
+9. Launch
+
+---
+
+# ✅ G) How to Connect
+
+1. SSH into Bastion using Public IP
+2. From Bastion → SSH into Private Server using Private IP
+
+---
+
